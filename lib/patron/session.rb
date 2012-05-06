@@ -211,7 +211,7 @@ module Patron
       req.file_name              = options[:file]
 
       url = url.to_s
-      if not (self.base_url.nil? and self.base_url.empty?) then
+      if not (self.base_url.nil? or self.base_url.empty?) then
         url = URI.join(self.base_url.to_s, url)
       else
         raise ArgumentError, "Empty URL" if url.empty?
