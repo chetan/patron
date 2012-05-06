@@ -210,16 +210,23 @@ module Patron
       req.upload_data            = options[:data]
       req.file_name              = options[:file]
 
-      base_url = self.base_url.to_s
       url = url.to_s
-      raise ArgumentError, "Empty URL" if base_url.empty? && url.empty?
-      uri = URI.join(base_url, url)
-      query = uri.query.to_s.split('&')
-      query += options[:query].is_a?(Hash) ? Util.build_query_pairs_from_hash(options[:query]) : options[:query].to_s.split('&')
-      uri.query = query.join('&')
-      uri.query = nil if uri.query.empty?
-      url = uri.to_s
-      req.url = url
+      if not (self.base_url.nil? and self.base_url.empty?) then
+        url = URI.join(self.base_url.to_s, url)
+      else
+        raise ArgumentError, "Empty URL" if url.empty?
+      end
+
+      if options.include? :query then
+        uri = url.kind_of?(URI) ? url : URI.parse(url)
+        query = uri.query.to_s.split('&')
+        query += options[:query].is_a?(Hash) ? Util.build_query_pairs_from_hash(options[:query]) : options[:query].to_s.split('&')
+        uri.query = query.join('&')
+        uri.query = nil if uri.query.empty?
+        url = uri.to_s
+      end
+
+      req.url = url.to_s
 
       handle_request(req)
     end
